@@ -139,6 +139,7 @@ public class XMLParser extends JFrame {
 
 		    while(reader.hasNext() && i++!=(20*countObject)+3){
 		      int event = reader.next();
+		            //System.out.println(i);
 		      switch(event){
 		      
 		      //START_ELEMENT-->  <xxxxx>
@@ -216,7 +217,6 @@ class Student{
 		String[] getStudent() {
 			return new String[] {getId(),getName(),getClasss(),getGraduate()};
 		}
-		
 
 	  @Override
 	  public String toString(){
