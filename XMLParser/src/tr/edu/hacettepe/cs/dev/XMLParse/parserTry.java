@@ -61,7 +61,7 @@ public class parserTry extends JFrame {
 		contentPane.setLayout(null);
 		
 		
-		JLabel lblFileName = new JLabel("E:\\STAJ\\InternWorks\\XMLParser\\bigSampleXML.xml");
+		JLabel lblFileName = new JLabel("/Users/okanalan/Desktop/bigSampleXML.xml");
 		lblFileName.setBounds(137, 26, 285, 16);
 		contentPane.add(lblFileName);
 		
@@ -130,12 +130,12 @@ public class parserTry extends JFrame {
 		p.add(jsp);
 		
 	    JButton btnLeft = new JButton("<");
-	    btnLeft.setBounds(194, 314, 41, 23);
+	    btnLeft.setBounds(184, 314, 31, 23);
 	    p.add(btnLeft);
 	    btnLeft.setEnabled(false);
 
 		JLabel label = new JLabel("Page Size: ");
-		label.setBounds(245, 314, 53, 14);
+		label.setBounds(230, 314, 63, 24);
 	    p.add(label);
 	    
 	    final JTextField tf = new JTextField("10", 7);
@@ -190,9 +190,10 @@ public class parserTry extends JFrame {
 	    XMLInputFactory factory = XMLInputFactory.newInstance();
 	    XMLStreamReader reader = factory.createXMLStreamReader(new FileReader(filePath));
 
+	    
+	    
 	    while(reader.hasNext() && i++!=(20*countObject)+3){
 	      int event = reader.next();
-	            //System.out.println(i);
 	      switch(event){
 	      
 	      //START_ELEMENT-->  <xxxxx>
@@ -258,7 +259,6 @@ class PagingModel extends AbstractTableModel {
 	
 	  public PagingModel(int size) {
 		    pageSize = size;
-		    //data[0]=new Student();data[0].setId("1");data[0].setName("2");data[0].setClasss("3");data[0].setGraduate("4");
 	  }
 	
 	  // Return values appropriate for the visible table part.
@@ -289,8 +289,7 @@ class PagingModel extends AbstractTableModel {
 	  public String getColumnName(int col) {
 	    return headers[col];
 	  }
-	
-	  // Use this method to figure out which page you are on.
+
 	  public int getPageOffset() {
 	    return pageOffset;
 	  }
@@ -303,8 +302,6 @@ class PagingModel extends AbstractTableModel {
 		  data=dat;
 	  }
 	
-	  // Use this method if you want to know how big the real table is . . . we
-	  // could also write "getRealValueAt()" if needed.
 	  public int getRealRowCount() {
 	    return data.length;
 	  }

@@ -1,4 +1,4 @@
-package hesapMakinasi;
+package hesapMakinası;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
