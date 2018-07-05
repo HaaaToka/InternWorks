@@ -15,7 +15,7 @@ import javax.xml.stream.events.XMLEvent;
 public class xmlSAX {
 
     public static void main(String[] args) {
-        String fileName = "/Users/okanalan/eclipse-workspace/firstProject/xml3.xml";
+        String fileName = "/Users/okanalan/Desktop/bigSampleXML.xml";
         List<student> empList = parseXML(fileName);
         for(student emp : empList){
             System.out.println(emp.toString());  

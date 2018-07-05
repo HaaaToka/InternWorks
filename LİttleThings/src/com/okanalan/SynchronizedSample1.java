@@ -3,13 +3,13 @@ package com.okanalan;
 import java.io.*;
 
 
-public class TrySomethingHereBoyz {
+public class SynchronizedSample1 {
 	
 	private int count=0;
 	
 	public static void main(String[] args) {
 		
-		TrySomethingHereBoyz tipt = new TrySomethingHereBoyz(); 
+		SynchronizedSample1 tipt = new SynchronizedSample1(); 
 		tipt.doCount();
 		
 	}
