@@ -1,17 +1,13 @@
 package com.okanalan;
 
-import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -127,7 +123,7 @@ public class MultithreadedReader extends JFrame {
 	    btnLeft.setBounds(73, 349, 51, 29);
 		btnLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(rr.getCurrentPageNumber()!=0) {
+				if(rr.getCurrentPageNumber()>1) {
 					modelRefresher(modelofView,rr,-1);
 					System.out.println(rr.getCurrentPageNumber());
 				}
@@ -139,6 +135,7 @@ public class MultithreadedReader extends JFrame {
 	}
 	
 	void modelRefresher(DefaultTableModel tbl,Reader ridit,int norp) {
+		
 		
 		Thread t1 = new Thread(new Runnable() {
 			@Override
@@ -168,10 +165,9 @@ public class MultithreadedReader extends JFrame {
 			t1.join();
 			t2.join();
 		}catch(InterruptedException e1) {}
-		
+
 		
 	}
-	
 	
 	void modelRemover(DefaultTableModel tbl) {
 		if (tbl.getRowCount() > 0) {
