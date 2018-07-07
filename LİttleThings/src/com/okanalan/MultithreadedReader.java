@@ -67,7 +67,7 @@ public class MultithreadedReader extends JFrame {
 		modelofView.addColumn("Class");
 		modelofView.addColumn("Graduate");
 		
-		JLabel lblFileName = new JLabel("/Users/okanalan/Desktop/bigSampleXML.xml");
+		JLabel lblFileName = new JLabel("E:\\STAJ\\bigSampleXML.xml");
 		lblFileName.setBounds(137, 26, 440, 16);
 		contentPane.add(lblFileName);
 		

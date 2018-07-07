@@ -1,17 +1,13 @@
 package tr.edu.hacettepe.cs.dev.XMLParse;
 
-import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -71,7 +67,7 @@ public class trySomething extends JFrame {
 		modelofView.addColumn("Class");
 		modelofView.addColumn("Graduate");
 		
-		JLabel lblFileName = new JLabel("/Users/okanalan/Desktop/bigSampleXML.xml");
+		JLabel lblFileName = new JLabel("E:\\STAJ\\bigSampleXML.xml");
 		lblFileName.setBounds(137, 26, 440, 16);
 		contentPane.add(lblFileName);
 		
@@ -102,14 +98,13 @@ public class trySomething extends JFrame {
 	    contentPane.add(tf);
 	    tf.addActionListener(new ActionListener() {
 		      public void actionPerformed(ActionEvent ae) {
-		    	 modelRemover(modelofView);
-		        try {
+				try {
 					rr.setPageSize(Integer.parseInt(tf.getText()));
-					modelWriter(modelofView,rr.xmlParse());
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				modelRefresher(modelofView,rr,1);
+
 		      }
 		    });
 	    
@@ -117,12 +112,8 @@ public class trySomething extends JFrame {
 	    btnRight.setBounds(373, 350, 41, 23);
 		btnRight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				modelRemover(modelofView);
-				try {
-					modelWriter(modelofView,rr.xmlParse());
-				} catch (FileNotFoundException | XMLStreamException e1) {
-					e1.printStackTrace();
-				}
+				modelRefresher(modelofView,rr,1);
+				rr.setPageNumber(rr.getCurrentPageNumber()+1);
 				System.out.println(rr.getCurrentPageNumber());
 			}
 		});
@@ -132,13 +123,8 @@ public class trySomething extends JFrame {
 	    btnLeft.setBounds(73, 349, 51, 29);
 		btnLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(rr.getCurrentPageNumber()!=0) {
-					modelRemover(modelofView);
-					try {
-						modelWriter(modelofView,rr.backer());
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+				if(rr.getCurrentPageNumber()>1) {
+					modelRefresher(modelofView,rr,-1);
 					System.out.println(rr.getCurrentPageNumber());
 				}
 			}
@@ -146,8 +132,43 @@ public class trySomething extends JFrame {
 
 	    contentPane.add(btnLeft);
 	   
-	   
 	}
+	
+	void modelRefresher(DefaultTableModel tbl,Reader ridit,int norp) {
+		
+		
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				modelRemover(tbl);
+			}
+		});
+		
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(norp==1)
+						modelWriter(tbl,ridit.xmlParse());
+					else
+						modelWriter(tbl,ridit.backer());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		t1.start();
+		t2.start();
+		
+		try {
+			t1.join();
+			t2.join();
+		}catch(InterruptedException e1) {}
+
+		
+	}
+	
 	void modelRemover(DefaultTableModel tbl) {
 		if (tbl.getRowCount() > 0) {
 		    for (int i = tbl.getRowCount() - 1; i > -1; i--) {
@@ -168,10 +189,11 @@ class Reader{
 	private XMLInputFactory factory;
 	private XMLStreamReader reader;
 	private void updateFile(String path) throws Exception {
+		
 		factory=XMLInputFactory.newInstance();
 		reader = factory.createXMLStreamReader(new FileReader(path));
 	}
-
+	
 	private String filePath;
 	private int pageSize;
 	private int currentPageNumber;
@@ -182,7 +204,6 @@ class Reader{
 	
 	void setPageSize(int size)  throws Exception{
 		pageSize=size;
-		reader.close();
 		updateFile(filePath);
 		setPageNumber(0);
 	}
@@ -211,9 +232,9 @@ class Reader{
 
 		for(int i=0;i<crpn-2;i++) {
 			this.xmlParse();
-			System.out.println(i);
+			//System.out.println(i);
 		}
-		setPageNumber(crpn-2);
+		setPageNumber(crpn-1);
 		return xmlParse();
 		
 	}
@@ -225,7 +246,6 @@ class Reader{
 	    Student[] empList = new Student[getPageSize()];
 	    Student currEmp = null;
 	    String tagContent = null;
-	    
 	    
 	    while(reader.hasNext() && syc!=getPageSize()){
 	      int event = reader.next();
@@ -272,7 +292,8 @@ class Reader{
 	      
 	    }
 	   
-	    currentPageNumber++;
 	    return empList;
 	  }
+	
+	
 }
