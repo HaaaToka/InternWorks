@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -22,10 +23,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 
 public class trySomething extends JFrame {
 
 	private JPanel contentPane;
+	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -67,7 +70,7 @@ public class trySomething extends JFrame {
 		modelofView.addColumn("Class");
 		modelofView.addColumn("Graduate");
 		
-		JLabel lblFileName = new JLabel("E:\\STAJ\\bigSampleXML.xml");
+		JLabel lblFileName = new JLabel("/Users/okanalan/Desktop/bigSampleXML.xml");
 		lblFileName.setBounds(137, 26, 440, 16);
 		contentPane.add(lblFileName);
 		
@@ -83,8 +86,13 @@ public class trySomething extends JFrame {
 				JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 				int returnValue = jfc.showOpenDialog(null);		
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					lblFileName.setText(jfc.getSelectedFile().getAbsolutePath());				
-				}
+					lblFileName.setText(jfc.getSelectedFile().getAbsolutePath());	
+					try {
+						rr.setFilePath(lblFileName.getText());
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}	
 			}
 		});
 	    
@@ -103,7 +111,12 @@ public class trySomething extends JFrame {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				modelRefresher(modelofView,rr,1);
+				new Thread() {
+					@Override
+					public void run() {
+						modelRefresher(modelofView,rr,1,scrollPane,tableStudents);
+					}
+				}.start();	
 
 		      }
 		    });
@@ -112,7 +125,12 @@ public class trySomething extends JFrame {
 	    btnRight.setBounds(373, 350, 41, 23);
 		btnRight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				modelRefresher(modelofView,rr,1);
+				new Thread() {
+					@Override
+					public void run() {
+						modelRefresher(modelofView,rr,1,scrollPane,tableStudents);
+					}
+				}.start();			
 				rr.setPageNumber(rr.getCurrentPageNumber()+1);
 				System.out.println(rr.getCurrentPageNumber());
 			}
@@ -124,23 +142,75 @@ public class trySomething extends JFrame {
 		btnLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(rr.getCurrentPageNumber()>1) {
-					modelRefresher(modelofView,rr,-1);
+					new Thread() {
+						@Override
+						public void run() {
+							modelRefresher(modelofView,rr,-1,scrollPane,tableStudents);
+						}
+					}.start();	
 					System.out.println(rr.getCurrentPageNumber());
 				}
 			}
 		});
 
 	    contentPane.add(btnLeft);
+	    
+	    JButton btnSendDatabase = new JButton("Send Database");
+	    btnSendDatabase.setBounds(310, 69, 117, 43);
+		btnSendDatabase.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 
+			}
+		});
+
+	    contentPane.add(btnSendDatabase);
+	    
+	    JLabel lblServerIp = new JLabel("Server IP :");
+	    lblServerIp.setBounds(10, 69, 61, 16);
+	    contentPane.add(lblServerIp);
+	    
+	    textField = new JTextField();
+	    textField.setText("10.210.10.74:1433");
+	    textField.setBounds(86, 64, 198, 26);
+	    contentPane.add(textField);
+	    textField.setColumns(10);
+	    
+	    JButton btnServerConnedction = new JButton("Connection");
+	    btnServerConnedction.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		
+	    		for(int i=0;i<((JTable) scrollPane.getViewport().getComponent(0)).getModel().getRowCount();i++) {
+	    			System.out.print( ((JTable) scrollPane.getViewport().getComponent(0)).getModel().getValueAt(i,0));
+	    		}
+	    	}
+	    });
+	    btnServerConnedction.setBounds(52, 89, 117, 29);
+	    contentPane.add(btnServerConnedction);
+	    
+	    JButton btnDisconnection = new JButton("Disconnection");
+	    btnDisconnection.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		tableStudents.getModel().getValueAt(0, 1);
+	    	}
+	    });
+	    btnDisconnection.setBounds(181, 89, 117, 29);
+	    contentPane.add(btnDisconnection);
 	   
 	}
 	
-	void modelRefresher(DefaultTableModel tbl,Reader ridit,int norp) {
+	void modelRefresher(DefaultTableModel tbl,Reader ridit,int norp,JScrollPane scp,JTable jt) {
 		
+		DefaultTableModel temptbl = new DefaultTableModel();
+		temptbl.addColumn("ID");
+		temptbl.addColumn("Name");
+		temptbl.addColumn("Class");
+		temptbl.addColumn("Graduate");
 		
 		Thread t1 = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				modelRemover(tbl);
+				//modelRemover(tbl);
+				System.out.println("delete me if you can");
 			}
 		});
 		
@@ -149,9 +219,9 @@ public class trySomething extends JFrame {
 			public void run() {
 				try {
 					if(norp==1)
-						modelWriter(tbl,ridit.xmlParse());
+						modelWriter(temptbl,ridit.xmlParse());
 					else
-						modelWriter(tbl,ridit.backer());
+						modelWriter(temptbl,ridit.backer());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -166,7 +236,8 @@ public class trySomething extends JFrame {
 			t2.join();
 		}catch(InterruptedException e1) {}
 
-		
+		jt = new JTable(temptbl);
+		scp.setViewportView(jt);
 	}
 	
 	void modelRemover(DefaultTableModel tbl) {

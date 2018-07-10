@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 public class thingsofSQL{
 	public static void main(String[] args) throws Exception
 	{
-		String connectionUrl = "jdbc:sqlserver://localhost:1433;" + "databaseName=okito;user=okan;password=1234";
+		String connectionUrl = "jdbc:sqlserver://10.210.10.74:1433;databaseName=demo;user=okan;password=1234";
 		
 	      Connection con = null;  
 	      Statement stmt = null;  
@@ -26,7 +26,7 @@ public class thingsofSQL{
 	          stmt = con.createStatement();
 	          
 	          try{
-	          stmt.executeUpdate("INSERT INTO STUDENT "+"VALUES ('12','FEV','ZI','9378')");
+	          stmt.executeUpdate("INSERT INTO STUDENT VALUES ('14','oka','zivdk','9378')");
 	          }catch(Exception e1){System.out.println("there is same");}
 	          // Create and execute an SQL statement that returns some data.  
 	              
