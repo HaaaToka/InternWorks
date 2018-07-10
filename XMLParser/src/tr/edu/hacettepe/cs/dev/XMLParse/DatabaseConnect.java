@@ -3,6 +3,8 @@ package tr.edu.hacettepe.cs.dev.XMLParse;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Statement;
 
 import javax.swing.JOptionPane;
@@ -11,6 +13,8 @@ import javax.swing.table.DefaultTableModel;
 public class DatabaseConnect {
 	
 	private String serverIP_port;
+	private String databaseName;
+	
 	private String connectionUrl;
     private Connection con = null;  
     private Statement stmt = null;  
@@ -18,8 +22,12 @@ public class DatabaseConnect {
 	
 	
 	public DatabaseConnect() {}
+	public DatabaseConnect(String dbName,String iport) {
+		setDatabaseName(dbName);
+		setServerIP_port(iport);
+	}
 	
-	protected void clearTable() {
+	protected void clearTable() throws SQLException {
 		
 	}
 	
@@ -82,7 +90,7 @@ public class DatabaseConnect {
 
 	private void setServerIP_port(String serverIPport) {
 		this.serverIP_port = serverIPport;
-		setConnectionUrl("jdbc:sqlserver://"+serverIPport+ ";databaseName=demo;user=okan;password=1234");
+		setConnectionUrl("jdbc:sqlserver://"+serverIPport+ ";databaseName="+databaseName+";user=okan;password=1234");
 	}
 	
 	
@@ -116,6 +124,14 @@ public class DatabaseConnect {
 
 	public void setRs(ResultSet rs) {
 		this.rs = rs;
+	}
+
+	public String getDatabaseName() {
+		return databaseName;
+	}
+
+	public void setDatabaseName(String dbName) {
+		this.databaseName = dbName;
 	}
 	
 }
