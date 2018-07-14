@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -28,7 +31,7 @@ import javax.swing.SwingConstants;
 public class trySomething extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField txtIPortField;
 
 	/**
 	 * Launch the application.
@@ -50,6 +53,9 @@ public class trySomething extends JFrame {
 	 * Create the frame.
 	 */
 	public trySomething() throws Exception{
+		
+		DatabaseConnect mssqlDB = new DatabaseConnect();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 479, 416);
 		contentPane = new JPanel();
@@ -159,7 +165,19 @@ public class trySomething extends JFrame {
 	    btnSendDatabase.setBounds(310, 69, 117, 43);
 		btnSendDatabase.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 
+
+				new Thread() {
+					@Override
+					public void run() {
+						 try {
+								mssqlDB.clearTable();
+								mssqlDB.instertNewData((DefaultTableModel)((JTable) scrollPane.getViewport().getComponent(0)).getModel());
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+					}
+				}.start();		
+
 			}
 		});
 
@@ -169,19 +187,28 @@ public class trySomething extends JFrame {
 	    lblServerIp.setBounds(10, 69, 61, 16);
 	    contentPane.add(lblServerIp);
 	    
-	    textField = new JTextField();
-	    textField.setText("10.210.10.74:1433");
-	    textField.setBounds(86, 64, 198, 26);
-	    contentPane.add(textField);
-	    textField.setColumns(10);
+	    txtIPortField = new JTextField();
+	    txtIPortField.setText("10.210.10.74:1433");
+	    txtIPortField.setBounds(86, 64, 198, 26);
+	    contentPane.add(txtIPortField);
+	    txtIPortField.setColumns(10);
 	    
 	    JButton btnServerConnedction = new JButton("Connection");
 	    btnServerConnedction.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
+				new Thread() {
+					@Override
+					public void run() {
+			    		mssqlDB.setTableName("STUDENT");
+			    		mssqlDB.setDatabaseName("demo");
+			    		mssqlDB.dbConnection(txtIPortField.getText());
+					}
+				}.start();
+
 	    		
-	    		for(int i=0;i<((JTable) scrollPane.getViewport().getComponent(0)).getModel().getRowCount();i++) {
+	    		/*for(int i=0;i<((JTable) scrollPane.getViewport().getComponent(0)).getModel().getRowCount();i++) {
 	    			System.out.print( ((JTable) scrollPane.getViewport().getComponent(0)).getModel().getValueAt(i,0));
-	    		}
+	    		}*/
 	    	}
 	    });
 	    btnServerConnedction.setBounds(52, 89, 117, 29);
@@ -190,11 +217,71 @@ public class trySomething extends JFrame {
 	    JButton btnDisconnection = new JButton("Disconnection");
 	    btnDisconnection.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
-	    		tableStudents.getModel().getValueAt(0, 1);
+				new Thread() {
+					@Override
+					public void run() {
+						mssqlDB.dbDisconnection();
+					}
+				}.start();
 	    	}
 	    });
 	    btnDisconnection.setBounds(181, 89, 117, 29);
 	    contentPane.add(btnDisconnection);
+	    
+	    JButton btnDbread = new JButton("DBR");
+	    btnDbread.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		try {
+					mssqlDB.dbReader("ID");
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	    	}
+	    });
+	    btnDbread.setBounds(10, 350, 61, 29);
+	    contentPane.add(btnDbread);
+	    
+	    JButton btnXxx = new JButton("xxx");
+	    btnXxx.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		
+	    		Reader r1 = new Reader();
+	    		int zit = 0;
+	    		
+	    		try {
+	    			r1.setFilePath(lblFileName.getText());
+	    			r1.setPageSize(100000);
+				} catch (Exception e1) {
+					e1.getMessage();
+				}
+	    		
+	    		List<Student[]> dbst = new ArrayList<>();
+	    		
+	    		new Thread() {
+	    			@Override
+	    			public void run() {
+	    				int zit=0;
+	    				try {
+	    					Student[] temp=r1.xmlParse();
+	    					/*while(true) {
+	    						temp = r1.xmlParse();
+	    						System.out.println(zit++);
+	    						if(r1.syc==0)
+	    							break;
+	    					}*/
+	    					
+	    					mssqlDB.insertNewData(temp);
+	    				} catch (Exception e1) {
+	    					e1.getMessage();
+	    				}
+	    			}
+	    		}.start();
+	    		
+	    	}
+	    });
+	    btnXxx.setBounds(422, 54, 51, 29);
+	    contentPane.add(btnXxx);
 	   
 	}
 	
@@ -205,14 +292,6 @@ public class trySomething extends JFrame {
 		temptbl.addColumn("Name");
 		temptbl.addColumn("Class");
 		temptbl.addColumn("Graduate");
-		
-		Thread t1 = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				//modelRemover(tbl);
-				System.out.println("delete me if you can");
-			}
-		});
 		
 		Thread t2 = new Thread(new Runnable() {
 			@Override
@@ -228,11 +307,9 @@ public class trySomething extends JFrame {
 			}
 		});
 		
-		t1.start();
 		t2.start();
 		
 		try {
-			t1.join();
 			t2.join();
 		}catch(InterruptedException e1) {}
 
@@ -254,117 +331,4 @@ public class trySomething extends JFrame {
 		}
 	}
 }
-
-class Reader{
 	
-	private XMLInputFactory factory;
-	private XMLStreamReader reader;
-	private void updateFile(String path) throws Exception {
-		
-		factory=XMLInputFactory.newInstance();
-		reader = factory.createXMLStreamReader(new FileReader(path));
-	}
-	
-	private String filePath;
-	private int pageSize;
-	private int currentPageNumber;
-	
-	public Reader() {
-		currentPageNumber=0;
-	}
-	
-	void setPageSize(int size)  throws Exception{
-		pageSize=size;
-		updateFile(filePath);
-		setPageNumber(0);
-	}
-	int getPageSize() {
-		return pageSize;
-	}
-	
-	void setPageNumber(int number) {
-		currentPageNumber=number;
-	}
-	int getCurrentPageNumber() {
-		return currentPageNumber;
-	}
-	
-	void setFilePath(String path) throws Exception{
-		filePath=path;
-		updateFile(path);
-	}
-	String getFilePath() {
-		return filePath;
-	}
-	
-	Student[] backer() throws Exception {
-		updateFile(filePath);
-		int crpn=getCurrentPageNumber();
-
-		for(int i=0;i<crpn-2;i++) {
-			this.xmlParse();
-			//System.out.println(i);
-		}
-		setPageNumber(crpn-1);
-		return xmlParse();
-		
-	}
-	
-	
-	Student[] xmlParse() throws FileNotFoundException, XMLStreamException {
-		 
-		int i=0,syc=0;
-	    Student[] empList = new Student[getPageSize()];
-	    Student currEmp = null;
-	    String tagContent = null;
-	    
-	    while(reader.hasNext() && syc!=getPageSize()){
-	      int event = reader.next();
-	      //System.out.println(i);
-	      switch(event){
-	      
-	      //START_ELEMENT-->  <xxxxx>
-	        case XMLStreamConstants.START_ELEMENT: 
-	          if ("student".equals(reader.getLocalName())){
-	            currEmp = new Student();
-	          }
-	          break;
-
-	          //CHARACTERS ...>xxxxx</
-	        case XMLStreamConstants.CHARACTERS:
-	          tagContent = reader.getText().trim();
-	          break;
-
-	          //END_ELEMENT </xxxxx>
-	        case XMLStreamConstants.END_ELEMENT:
-	          switch(reader.getLocalName()){
-	            case "student":
-	              empList[syc++]=currEmp;
-	              break;
-	            case "id":
-	                currEmp.setId(tagContent);
-	                break;
-	            case "name":
-	              currEmp.setName(tagContent);
-	              break;
-	            case "class":
-	              currEmp.setClasss(tagContent);
-	              break;
-	            case "graduate":
-	              currEmp.setGraduate(tagContent);
-	              break;
-	          }
-	          break;
-
-	        case XMLStreamConstants.START_DOCUMENT:
-	          empList = new Student[getPageSize()];
-	          break;
-	      }
-	      
-	    }
-	   
-	    return empList;
-	  }
-	
-	
-}

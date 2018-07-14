@@ -26,17 +26,19 @@ public class thingsofSQL{
 	          stmt = con.createStatement();
 	          
 	          try{
-	          stmt.executeUpdate("INSERT INTO STUDENT VALUES ('14','oka','zivdk','9378')");
+	        	  //stmt.executeUpdate("TRUNCATE TABLE STUDENT");
+	        	  //stmt.executeUpdate("INSERT INTO STUDENT VALUES ('18','ays','zivdk','9378')");
 	          }catch(Exception e1){System.out.println("there is same");}
 	          // Create and execute an SQL statement that returns some data.  
 	              
-	          String SQL = "SELECT TOP 10 * FROM STUDENT";  
+	          String SQL = "SELECT * FROM STUDENT";  
 
-	          rs = stmt.executeQuery(SQL);  
+	          rs = stmt.executeQuery(SQL); 
+	          System.out.println(rs.getClass());
 
 	          // Iterate through the data in the result set and display it.  
 	          while (rs.next()) {  
-	             System.out.println(rs.getString("Name"));  
+	             System.out.println(rs.getString("ID"));  
 	          }  
 	       }  
 
