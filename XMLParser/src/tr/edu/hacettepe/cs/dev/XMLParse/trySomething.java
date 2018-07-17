@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -246,37 +247,97 @@ public class trySomething extends JFrame {
 	    btnXxx.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		
+	    		
+	    		
 	    		Reader r1 = new Reader();
 	    		int zit = 0;
 	    		
 	    		try {
+	    			//mssqlDB.clearTable();
+	    			new DatabaseConnect("demo","STUDENT",txtIPortField.getText()).clearTable();		
 	    			r1.setFilePath(lblFileName.getText());
 	    			r1.setPageSize(100000);
 				} catch (Exception e1) {
 					e1.getMessage();
 				}
+	    			    	
+	    		Mission m1 = new Mission();
 	    		
-	    		List<Student[]> dbst = new ArrayList<>();
-	    		
-	    		new Thread() {
+	    		Thread t1 = new Thread() {
 	    			@Override
 	    			public void run() {
-	    				int zit=0;
 	    				try {
-	    					Student[] temp=r1.xmlParse();
-	    					/*while(true) {
-	    						temp = r1.xmlParse();
-	    						System.out.println(zit++);
-	    						if(r1.syc==0)
-	    							break;
-	    					}*/
-	    					
-	    					mssqlDB.insertNewData(temp);
-	    				} catch (Exception e1) {
-	    					e1.getMessage();
+							m1.read(r1);
+						} catch (FileNotFoundException | InterruptedException | XMLStreamException e) {
+							e.printStackTrace();
+						}
+	    			}
+	    		};
+	    		t1.start();
+	    		
+	    		Thread t2 = new Thread() {
+	    			@Override
+	    			public void run() {
+	    				
+	    				while(t1.isAlive()) {
+		    				try {
+								m1.insert(txtIPortField.getText());
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
 	    				}
 	    			}
-	    		}.start();
+	    		};
+	    		t2.start();
+	    		/*
+	    		Thread t3 = new Thread() {
+	    			@Override
+	    			public void run() {
+	    				
+	    				while(t1.isAlive()) {
+		    				try {
+								m1.insert(txtIPortField.getText());
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+	    				}
+	    			}
+	    		};   		
+	    		t3.start();
+	    		Thread t4 = new Thread() {
+	    			@Override
+	    			public void run() {
+	    				
+	    				while(t1.isAlive()) {
+		    				try {
+								m1.insert(txtIPortField.getText());
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+	    				}
+	    			}
+	    		};   		
+	    		t4.start();
+	    		
+	    		try {
+					t2.join();
+		    		t3.join();
+		    		t4.join();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
+
+	    		
+	    		/*while(t1.isAlive()) {
+	    			System.out.println("yasiyommm");
+	    			try {
+						TimeUnit.SECONDS.sleep(3);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+	    		}*/
+	    		
 	    		
 	    	}
 	    });

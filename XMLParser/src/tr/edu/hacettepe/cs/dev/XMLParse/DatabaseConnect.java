@@ -24,10 +24,17 @@ public class DatabaseConnect {
 	
 	
 	public DatabaseConnect() {}
-	public DatabaseConnect(String tablename,String dbName,String iport) {
+	public DatabaseConnect(String dbName,String tablename,String iport) {
 		setDatabaseName(dbName);
 		setServerIP_port(iport);
 		setTableName(tablename);
+		try {
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver"); 
+			setCon(DriverManager.getConnection(getConnectionUrl()));
+			setStmt(getCon().createStatement());
+		}catch(Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	protected void dbReader(String whichColumn) throws SQLException {
@@ -40,6 +47,7 @@ public class DatabaseConnect {
 		System.out.println("\n\n"+size+"\n\n");
 	}
 	
+	
 	protected void clearTable() throws SQLException {
 		getStmt().executeUpdate("TRUNCATE TABLE "+getTableName());
 	}
@@ -48,7 +56,6 @@ public class DatabaseConnect {
 	protected void insertNewData(Student[] stus) throws SQLException {
 		long startTime = System.currentTimeMillis();
 		
-		clearTable();
 		String sql = "INSERT INTO "+ getTableName() + "(ID,NAME,CLASS,GRADUATE) values(?,?,?,?)";
 		int count =0;
 		int batchSize=2500;
@@ -66,21 +73,19 @@ public class DatabaseConnect {
 				pstmt.setString(2, stu.getName());
 				pstmt.setString(3, stu.getClasss());
 				pstmt.setString(4, stu.getGraduate());
-				//System.out.println(sql+count);
 				pstmt.addBatch();
 				
 				if(count % batchSize==0) {
-					//System.out.println("commit the batch");
-					int[] result=pstmt.executeBatch();
-					//System.out.println("# rows inserted "+result.length);
-					getCon().commit();
+					pstmt.executeBatch();
+					pstmt.clearBatch();
 				}
 			}
+			getCon().commit();
 			
 		}catch(Exception e1) {
-			System.out.println(e1.getMessage());
+			System.out.println("\t-->>"+e1.getMessage());
 		}finally {
-			if(pstmt==null)
+			if(pstmt!=null)
 				pstmt.close();
 		}
 		
